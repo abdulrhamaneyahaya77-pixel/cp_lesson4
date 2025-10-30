@@ -1,14 +1,20 @@
-document.addEventListener('DOMContentLoaded',setup)
+import { MiniMaple } from "./miniMaple.js";
 
-function setup() {
-    document.getElementById('demoButton').onclick = addSomething;
-}
+document.addEventListener("DOMContentLoaded", () => {
+    const m = new MiniMaple();
 
-function addSomething(){
-    const someDummyDiv = document.createElement('div');
-    someDummyDiv.classList.add('generated');
-    const count = document.getElementsByClassName('generated').length;
-    someDummyDiv.innerHTML = `I was created by JS! There are already ${count} of my friends!`;
-    const container = document.getElementById('container');
-    container.appendChild(someDummyDiv);
-}
+    document.getElementById("deriveButton").onclick = () => {
+        const expr = document.getElementById("expr").value;
+        const variable = document.getElementById("variable").value;
+        const resultDiv = document.getElementById("result");
+
+        try {
+            const result = m.diff(expr, variable);
+            resultDiv.innerText = `Résultat : ${result}`;
+            resultDiv.style.color = "green";
+        } catch (err) {
+            resultDiv.innerText = `Erreur : ${err.message}`;
+            resultDiv.style.color = "red";
+        }
+    };
+});
