@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const resultDiv = document.getElementById("result");
 
         try {
-            const result = m.diff(expr, variable);
+            const result = MiniMaple.differentiate(expr, variable);
             resultDiv.innerText = `Résultat : ${result}`;
             resultDiv.style.color = "green";
         } catch (err) {

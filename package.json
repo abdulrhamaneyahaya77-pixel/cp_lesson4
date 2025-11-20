@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Mini calculateur de dérivée symbolique (TDD + Parcel + Jest)",
   "scripts": {
-    "start": "parcel index.html",
+    "start": "parcel src/index.html",
     "dev": "parcel index.html --port 1234 --open",
     "test": "jest",
     "coverage": "jest --collect-coverage"

@@ -1,87 +1,94 @@
+class MiniMaple{
+    constructor(){}
 
-class MiniMaple {
-    remplacerSymboles(expr) {
-        return expr
-            .replace(/[²³⁴⁵⁶⁷⁸⁹]/g, m => "^" + "²³⁴⁵⁶⁷⁸⁹".indexOf(m, 0) + 2)
-            .replace(/[×·]/g, "*");
-    }
+    static differentiate(poly,vari){
+        poly = poly.replace(/\s/g, '').toLowerCase();
+        vari = vari.toLowerCase()
 
-    parseExpression(expr) {
-        expr = this.remplacerSymboles(expr);
-        
-    }
+        const terms = this.splitPoly(poly);
+        const derivTerms = []
 
-   
-    // -------------------------------
-    parseExpression(expr) {
-       expr = this.remplacerSymboles(expr);
-        expr = expr.replace(/\s+/g, ""); 
-
-        const parties = expr.split(/(?=[+-])/);
-        const termes = []; 
-
-        for (let part of parties) {
-            if (part.trim() === "") continue;
-
-            const match = part.match(/^([+-]?\d*)\*?([a-zA-Z])?(?:\^([0-9]+))?$/);
-
-            if (!match) {
-                // Si c'est juste un nombre
-                const num = parseFloat(part);
-                if (!isNaN(num)) {
-                    termes.push({
-                        coefficient: num,
-                        symbole: "",
-                        exposant: 0
-                    });
-                }
-                continue;
+        for (const term of terms){
+            const derivative = this.differentiateTerm(term, vari);
+            if (derivative !== '0'){
+                derivTerms.push(derivative);
             }
-
-            let [, coef, symbole, exposant] = match;
-
-            coef = coef ? parseFloat(coef) : 1;
-            exposant = exposant ? parseFloat(exposant) : (symbole ? 1 : 0);
-
-            if (part.trim().startsWith("-") && coef > 0) coef = -coef;
-
-            
-            termes.push({
-                coefficient: coef,
-                symbole: symbole || "",
-                exposant: exposant
-            });
         }
 
-        return termes;
+        if (derivTerms.length === 0) {
+            return '0';
+        }
+
+        return derivTerms.join('+').replace(/\+\-/g, '-');
     }
 
-    
-// -------------------------------
-diff(expression, variable) {
-    const termes = this.parseExpression(expression);
+    static splitPoly(poly){
+        const terms = [];
+        let currTerm = '';
+        let sign = 1;
 
-    const derives = termes.map(t => {
-        if (t.symbole !== variable) return { coefficient: 0, symbole: "", exposant: 0 };
-        if (t.exposant === 0) return { coefficient: 0, symbole: "", exposant: 0 };
+        for (let i = 0; i < poly.length; i++){
+            const char = poly[i];
+            if (char === '+' || char === '-'){
+                if (currTerm !== ''){
+                    terms.push((sign === -1 ? '-' : '') + currTerm);
+                    currTerm = ''
+                }
+                sign = char === '-' ? -1 : 1;
+            }
+            else{
+                currTerm += char;
+            }
+        }
 
-        return {
-            coefficient: t.coefficient * t.exposant,
-            symbole: t.symbole,
-            exposant: t.exposant - 1
-        };
-    });
+        if (currTerm !== ''){
+            terms.push((sign === -1 ? '-' : '') + currTerm);
+        }
+        return terms;
+    }
 
-    const derivesFiltrees = derives.filter(t => t.coefficient !== 0);
+    static differentiateTerm(term, variable){
+        let sign = 1;
+        if (term.startsWith('+')){
+            term = term.substring(1);
+        } else if (term.startsWith('-')){
+            sign = -1;
+            term = term.substring(1);
+        }
 
-    const resultat = derivesFiltrees.map(t => {
-        if (t.exposant === 0 || t.symbole === "") return `${t.coefficient}`;
-        if (t.exposant === 1) return `${t.coefficient}*${t.symbole}`;
-        return `${t.coefficient}*${t.symbole}^${t.exposant}`;
-    }).join(" + ");
+        if (!term.includes(variable)){
+            return '0';
+        }
 
-    return resultat.replace(/\+\s*-/g, "- ");
+        const parts = term.split('*');
+        let coeff = 1;
+        let power = 1;
+
+        for (const part of parts){
+            if (part.includes(variable)){
+                if (part.includes('^')){
+                    const exp = part.split('^')[1];
+                    power = parseInt(exp);
+                }
+                else {power = 1;}
+            }
+            else {coeff *= parseFloat(part);}
+        }
+
+        coeff *= sign * power;
+        power -= 1;
+
+        if (power === 0){
+            return coeff.toString();
+        }
+        else if (power === 1)
+        {
+            return coeff === 1 ? variable : coeff === 1 ? '-'+variable : coeff+'*'+variable;
+        }
+        else {
+            return coeff === 1 ? variable+'^'+power : coeff === -1 ? '-'+variable+'^'+power : coeff+'*'+variable+'^'+power;
+        }
+    }
 }
-}
 
-export { MiniMaple };
+export {MiniMaple}
